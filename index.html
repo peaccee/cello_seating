@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>大提琴排練座位安排</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#f5f3ef;color:#242424;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",sans-serif}
+body{min-height:100vh}
+.container{width:100%;max-width:760px;margin:0 auto;padding:18px 14px 36px}
+h1{font-size:24px;line-height:1.25;margin:0 0 5px}
+.sub{font-size:13px;color:#777;margin-bottom:17px}
+.panel{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 15px rgba(0,0,0,.06);margin-bottom:14px}
+h2{font-size:17px;margin:0 0 13px}
+.count{float:right;color:#777;font-size:13px;font-weight:400}
+.people{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label.person{min-height:48px;display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid #ddd8cf;border-radius:12px;cursor:pointer;background:#faf9f7;-webkit-tap-highlight-color:transparent}
+label.person:has(input:checked){background:#eee7df;border-color:#8b7b6a}
+.person input{width:19px;height:19px;margin:0;accent-color:#263746}
+.person span:nth-child(2){font-size:14px}
+.tag{font-size:10px!important;color:#777;border:1px solid #ccc;border-radius:5px;padding:2px 4px;margin-left:auto;white-space:nowrap}
+.buttons{display:flex;gap:8px;margin-top:12px}.buttons button{max-width:220px}
+button{border:0;border-radius:11px;padding:11px 13px;font-size:14px;cursor:pointer;flex:1}
+.primary{background:#263746;color:#fff}.secondary{background:#e9e6df}
+.stage{text-align:center;color:#777;border-bottom:2px solid #aaa;padding:7px 4px;margin:0 auto 13px;font-size:13px;max-width:650px}
+.seats{display:flex;flex-direction:column;gap:7px}
+.row{display:grid;grid-template-columns:38px 1fr 1fr;gap:6px;align-items:stretch}
+.rownum{display:flex;align-items:center;justify-content:center;color:#777;font-size:12px;font-weight:600}
+.seat{min-height:58px;background:#fff;border:1px solid #d8d5cf;border-radius:10px;padding:7px 9px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.seat.outer{border-left:4px solid #263746}
+.seat.empty{background:#f7f6f3;color:#aaa;text-align:center}
+.seat strong{font-size:14px;line-height:1.25}
+.seat .role{font-size:10px;color:#777;margin-top:3px}
+.note{font-size:12px;color:#777;margin-top:12px;line-height:1.55}
+@media(min-width:600px){
+ .container{padding-top:28px}
+ .people{grid-template-columns:repeat(3,1fr)}
+ .seat{min-height:64px}
+}
+@media print{
+ body{background:#fff}.panel:first-of-type,.buttons,.note{display:none}
+ .container{padding:0}.panel{box-shadow:none}.seats{max-width:900px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎻 大提琴排練座位安排</h1>
+  <div class="sub">點選缺席團員，座位會立即自動往前遞補。</div>
+
+  <div class="panel">
+    <h2>今日缺席 <span class="count" id="count">0 人缺席</span></h2>
+    <div class="people" id="people"></div>
+    <div class="buttons">
+      
+      <button class="secondary" onclick="clearAbsences()">全部恢復出席</button>
+      <button class="secondary" onclick="window.print()">列印／PDF</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>今日座位 <span class="count" id="present">16 人出席</span></h2>
+    <div class="stage">舞台／指揮前方</div>
+    <div class="seats" id="seats"></div>
+    <div class="note">
+      深色左框＝外側位置。標示「外側」的人只能安排在外側，有人缺席時，後方團員會依原本順序往前遞補；外側限定者仍只能坐外側。
+    </div>
+  </div>
+</div>
+
+<script>
+const members = [
+  {name:"林晏存", outer:true, row:0, side:0},
+  {name:"聯演老師A", outer:false, row:0, side:1},
+  {name:"陳建穎", outer:true, row:1, side:0},
+  {name:"華芸瑋", outer:false, row:1, side:1},
+  {name:"李志謙", outer:true, row:2, side:0},
+  {name:"林怡秀", outer:false, row:2, side:1},
+  {name:"聯演老師B", outer:true, row:3, side:0},
+  {name:"賴妍伶", outer:false, row:3, side:1},
+  {name:"周鈺倫", outer:true, row:4, side:0},
+  {name:"蕭雲雲", outer:false, row:4, side:1},
+  {name:"喬楢", outer:true, row:5, side:0},
+  {name:"吳妤萱", outer:false, row:5, side:1},
+  {name:"周冠伶", outer:false, row:6, side:0},
+  {name:"李采蔓", outer:false, row:6, side:1},
+  {name:"胡皓婷", outer:false, row:7, side:0},
+  {name:"賴佳惠", outer:false, row:7, side:1}
+];
+
+const people = document.getElementById("people");
+members.forEach((m,i)=>{
+  const label=document.createElement("label");
+  label.className="person";
+  label.innerHTML=`<input type="checkbox" data-index="${i}"><span>${m.name}</span>${m.outer?'<span class="tag">外側</span>':''}`;
+  people.appendChild(label);
+});
+people.addEventListener("change",()=>{updateCount();autoArrange();});
+
+function absentSet(){
+  return new Set([...document.querySelectorAll("input[type=checkbox]:checked")]
+    .map(x=>Number(x.dataset.index)));
+}
+function updateCount(){
+  const n=absentSet().size;
+  document.getElementById("count").textContent=`${n} 人缺席`;
+  document.getElementById("present").textContent=`${members.length-n} 人出席`;
+}
+function clearAbsences(){
+  document.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=false);
+  updateCount(); autoArrange();
+}
+
+/* 排座：
+   1. 外側限定者只進入外側欄。
+   2. 優先保持原本排次。
+   3. 一般成員填入剩餘位置，亦優先保持原本位置。
+*/
+function autoArrange(){
+  const absent=absentSet();
+  const present=members.filter((m,i)=>!absent.has(i));
+  const seats=Array.from({length:8},()=>[null,null]);
+
+  // 核心規則：
+  // 缺席後，人員依「原本座位順序」往前遞補。
+  // 外側限定者永遠只能進外側；一般成員則依原本欄位優先填入。
+  //
+  // 做法：
+  // 先建立原本16個座位的閱讀順序（第1排外側→內側、第2排外側→內側...）。
+  // 逐一移除缺席者後，剩下的人依序往前補。
+  // 若下一位是外側限定者，則尋找下一個可用的外側位置，
+  // 不讓他被塞進內側。
+
+  const remaining = present.slice().sort((a,b)=>{
+    if(a.row!==b.row) return a.row-b.row;
+    return a.side-b.side;
+  });
+
+  // 先處理外側限定者：依原本先後順序，填入最靠前的可用外側位置。
+  // 這樣有人缺席時，後面的外側成員會往前遞補。
+  const outer = remaining.filter(m=>m.outer);
+  const flexible = remaining.filter(m=>!m.outer);
+
+  let outerRow=0;
+  outer.forEach(m=>{
+    while(outerRow<8 && seats[outerRow][0]) outerRow++;
+    if(outerRow<8){
+      seats[outerRow][0]=m;
+      outerRow++;
+    }
+  });
+
+  // 一般成員依原本座位順序，填入剩餘位置。
+  // 優先讓他們往前遞補，而不是跳回原本排次。
+  const empty=[];
+  for(let r=0;r<8;r++){
+    for(let s=0;s<2;s++){
+      if(!seats[r][s]) empty.push([r,s]);
+    }
+  }
+
+  flexible.forEach(m=>{
+    // 優先找原本欄位相同、且在前方的空位；
+    // 若沒有，再依序填下一個空位。
+    let candidateIndex=empty.findIndex(([r,s])=>s===m.side);
+    if(candidateIndex<0) candidateIndex=0;
+    const [r,s]=empty.splice(candidateIndex,1)[0];
+    seats[r][s]=m;
+  });
+
+  render(seats);
+}
+
+function render(seats){
+  const box=document.getElementById("seats");
+  box.innerHTML="";
+  seats.forEach((row,r)=>{
+    const wrap=document.createElement("div");
+    wrap.className="row";
+    const num=document.createElement("div");
+    num.className="rownum";
+    num.textContent=`${r+1} 排`;
+    wrap.appendChild(num);
+    row.forEach((m,s)=>{
+      const seat=document.createElement("div");
+      seat.className="seat"+(s===0?" outer":"")+(m?"":" empty");
+      if(m){
+        seat.innerHTML=`<strong>${m.name}</strong>${m.outer?'<div class="role">外側限定</div>':''}`;
+      }else seat.textContent="空位";
+      wrap.appendChild(seat);
+    });
+    box.appendChild(wrap);
+  });
+}
+updateCount();
+autoArrange();
+</script>
+</body>
+</html>
