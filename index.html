@@ -150,8 +150,10 @@ function autoArrange(){
     }
   });
 
-  // 一般成員依原本座位順序，填入剩餘位置。
-  // 優先讓他們往前遞補，而不是跳回原本排次。
+  // 一般成員依原本座位順序，從最前面的空位開始往前遞補。
+  // 不再優先維持原本內／外側，避免中間出現空位。
+  // 因此最後一位賴佳惠也會落在最後一個實際使用的位置，
+  // 不會因為前面偏好的欄位而留下空洞。
   const empty=[];
   for(let r=0;r<8;r++){
     for(let s=0;s<2;s++){
@@ -160,11 +162,8 @@ function autoArrange(){
   }
 
   flexible.forEach(m=>{
-    // 優先找原本欄位相同、且在前方的空位；
-    // 若沒有，再依序填下一個空位。
-    let candidateIndex=empty.findIndex(([r,s])=>s===m.side);
-    if(candidateIndex<0) candidateIndex=0;
-    const [r,s]=empty.splice(candidateIndex,1)[0];
+    if(empty.length===0) return;
+    const [r,s]=empty.shift();
     seats[r][s]=m;
   });
 
