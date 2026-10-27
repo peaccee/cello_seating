@@ -14,7 +14,7 @@ h1{font-size:24px;line-height:1.25;margin:0 0 5px}
 .panel{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 15px rgba(0,0,0,.06);margin-bottom:14px}
 h2{font-size:17px;margin:0 0 13px}
 .count{float:right;color:#777;font-size:13px;font-weight:400}
-.people{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.people{display:grid;grid-template-columns:1fr 1fr;gap:8px}.outer-person{grid-column:1}.flexible-person{grid-column:2}
 label.person{min-height:48px;display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid #ddd8cf;border-radius:12px;cursor:pointer;background:#faf9f7;-webkit-tap-highlight-color:transparent}
 label.person:has(input:checked){background:#eee7df;border-color:#8b7b6a}
 .person input{width:19px;height:19px;margin:0;accent-color:#263746}
@@ -35,7 +35,7 @@ button{border:0;border-radius:11px;padding:11px 13px;font-size:14px;cursor:point
 .note{font-size:12px;color:#777;margin-top:12px;line-height:1.55}
 @media(min-width:600px){
  .container{padding-top:28px}
- .people{grid-template-columns:repeat(3,1fr)}
+ .people{grid-template-columns:1fr 1fr}
  .seat{min-height:64px}
 }
 @media print{
@@ -71,28 +71,28 @@ button{border:0;border-radius:11px;padding:11px 13px;font-size:14px;cursor:point
 
 <script>
 const members = [
-  {name:"林晏存", outer:true, row:0, side:0},
-  {name:"李佳宣", outer:false, row:0, side:1},
-  {name:"陳建穎", outer:true, row:1, side:0},
-  {name:"華芸瑋", outer:false, row:1, side:1},
-  {name:"李志謙", outer:true, row:2, side:0},
-  {name:"林怡秀", outer:false, row:2, side:1},
-    {name:"賴妍伶", outer:false, row:3, side:1},
-  {name:"周鈺倫", outer:true, row:4, side:0},
-  {name:"蕭雲雲", outer:false, row:4, side:1},
-  {name:"喬楢", outer:true, row:5, side:0},
-  {name:"吳妤萱", outer:false, row:5, side:1},
-  {name:"周冠伶", outer:false, row:6, side:0},
-  {name:"李采蔓", outer:false, row:6, side:1},
-  {name:"胡皓婷", outer:false, row:7, side:0},
-  {name:"賴佳惠", outer:false, row:7, side:1}
+  {name:"林晏存", section:"１", outer:true, row:0, side:0},
+  {name:"李佳宣", section:"１", outer:false, row:0, side:1},
+  {name:"陳建穎", section:"２", outer:true, row:1, side:0},
+  {name:"華芸瑋", section:"２", outer:false, row:1, side:1},
+  {name:"李志謙", section:"３", outer:true, row:2, side:0},
+  {name:"林怡秀", section:"３", outer:false, row:2, side:1},
+  {name:"周鈺倫", section:"４", outer:true, row:3, side:0},
+  {name:"賴妍伶", section:"４", outer:false, row:3, side:1},
+  {name:"喬楢", section:"４", outer:true, row:4, side:0},
+  {name:"蕭雲雲", section:"４", outer:false, row:4, side:1},
+  {name:"周冠伶", section:"４", outer:false, row:5, side:0},
+  {name:"吳妤萱", section:"４", outer:false, row:5, side:1},
+  {name:"胡皓婷", section:"４", outer:false, row:6, side:0},
+  {name:"李采蔓", section:"４", outer:false, row:6, side:1},
+  {name:"賴佳惠", section:"４", outer:false, row:7, side:0}
 ];
 
 const people = document.getElementById("people");
 members.forEach((m,i)=>{
   const label=document.createElement("label");
-  label.className="person";
-  label.innerHTML=`<input type="checkbox" data-index="${i}"><span>${m.name}</span>${m.outer?'<span class="tag">外側</span>':''}`;
+  label.className="person"+(m.outer?" outer-person":" flexible-person");
+  label.innerHTML=`<input type="checkbox" data-index="${i}"><span>${m.name}（${m.section}）</span>${m.outer?'<span class="tag">外側</span>':''}`;
   people.appendChild(label);
 });
 people.addEventListener("change",()=>{updateCount();autoArrange();});
