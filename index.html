@@ -119,7 +119,7 @@ function clearAbsences(){
 function autoArrange(){
   const absent=absentSet();
   const present=members.filter((m,i)=>!absent.has(i));
-  const seats=Array.from({length:8},()=>[null,null]);
+  const seats=Array.from({length:7},()=>[null,null]);
 
   // 核心規則：
   // 缺席後，人員依「原本座位順序」往前遞補。
@@ -143,8 +143,8 @@ function autoArrange(){
 
   let outerRow=0;
   outer.forEach(m=>{
-    while(outerRow<8 && seats[outerRow][0]) outerRow++;
-    if(outerRow<8){
+    while(outerRow<7 && seats[outerRow][0]) outerRow++;
+    if(outerRow<7){
       seats[outerRow][0]=m;
       outerRow++;
     }
@@ -155,7 +155,7 @@ function autoArrange(){
   // 因此最後一位賴佳惠也會落在最後一個實際使用的位置，
   // 不會因為前面偏好的欄位而留下空洞。
   const empty=[];
-  for(let r=0;r<8;r++){
+  for(let r=0;r<7;r++){
     for(let s=0;s<2;s++){
       if(!seats[r][s]) empty.push([r,s]);
     }
