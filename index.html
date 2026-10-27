@@ -184,7 +184,7 @@ function render(seats){
       const seat=document.createElement("div");
       seat.className="seat"+(s===0?" outer":"")+(m?"":" empty");
       if(m){
-        seat.innerHTML=`<strong>${m.name}</strong>${m.outer?'<div class="role">外側限定</div>':''}`;
+        seat.innerHTML=`<strong>${m.name}（${m.section}）</strong>${m.outer?'<div class="role">外側限定</div>':''}`;
       }else seat.textContent="空位";
       wrap.appendChild(seat);
     });
